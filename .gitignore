@@ -37,6 +37,7 @@ pids/
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -63,3 +64,7 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Personal notes and workflow guides
+WORKFLOW.md
+GIT-BRANCHING-GUIDE.md
