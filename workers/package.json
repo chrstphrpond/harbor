@@ -1,0 +1,24 @@
+{
+  "name": "harbor-workers",
+  "version": "1.0.0",
+  "description": "Harbor background workers",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.8.0",
+    "@aws-sdk/client-s3": "^3.490.0",
+    "bullmq": "^5.1.0",
+    "ioredis": "^5.3.2",
+    "csv-parse": "^5.5.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "prisma": "^5.8.0"
+  }
+}

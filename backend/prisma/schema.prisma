@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users           User[]
+  rawFiles        RawFile[]
+  processedRecords ProcessedRecord[]
+  insights        Insight[]
+  automationRules AutomationRule[]
+  auditLogs       AuditLog[]
+
+  @@map("tenants")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STAFF)
+  createdAt    DateTime @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  auditLogs AuditLog[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+enum FileType {
+  SALES
+  EXPENSES
+  LEADS
+  INVENTORY
+}
+
+enum FileStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+model RawFile {
+  id         String     @id @default(uuid())
+  tenantId   String
+  fileType   FileType
+  storageUrl String
+  status     FileStatus @default(PENDING)
+  createdAt  DateTime   @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("raw_files")
+}
+
+model ProcessedRecord {
+  id         String   @id @default(uuid())
+  tenantId   String
+  recordType String
+  data       Json
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, recordType])
+  @@map("processed_records")
+}
+
+enum InsightType {
+  DAILY
+  WEEKLY
+}
+
+model Insight {
+  id        String      @id @default(uuid())
+  tenantId  String
+  content   Json
+  type      InsightType
+  createdAt DateTime    @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, type])
+  @@map("insights")
+}
+
+model AutomationRule {
+  id             String   @id @default(uuid())
+  tenantId       String
+  name           String
+  ruleDefinition Json
+  enabled        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, enabled])
+  @@map("automation_rules")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String?
+  action    String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@map("audit_logs")
+}
